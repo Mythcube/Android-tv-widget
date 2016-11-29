@@ -5,30 +5,23 @@ import android.animation.Animator.AnimatorListener;
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
 import android.graphics.Rect;
+import android.graphics.RectF;
+import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.view.animation.DecelerateInterpolator;
+
+import com.open.androidtvwidget.utils.OPENLOG;
 
 public class RecyclerViewBridge extends EffectNoDrawBridge {
 	
 	private AnimatorSet mCurrentAnimatorSet;
-	
-	private int mDx = 0;
-	private int mDy = 0;
-	
-	public void setFocusView(View newView, View oldView, float scale, int dx, int dy) {
-		this.mDx = dx;
-		this.mDy = dy;
-		//
-		setFocusView(newView, scale);
-		setUnFocusView(oldView);
-	}
 	
 	/**
 	 * 重写边框移动函数.
 	 */
 	@Override
 	public void flyWhiteBorder(final View focusView, View moveView, float scaleX, float scaleY) {
-		Rect paddingRect = getDrawUpRect();
+		RectF paddingRect = getDrawUpRect();
 		int newWidth = 0;
 		int newHeight = 0;
 		int oldWidth = 0;
@@ -44,19 +37,24 @@ public class RecyclerViewBridge extends EffectNoDrawBridge {
 			oldHeight = moveView.getMeasuredHeight();
 			Rect fromRect = findLocationWithView(moveView);
 			Rect toRect = findLocationWithView(focusView);
-			//
-			if (mDy != 0) {
-				toRect.set(toRect.left, toRect.top - (mDy), toRect.right, toRect.bottom - (mDy));
-				mDy = 0;
+
+			// 处理 RecyclerView TV 上 移动边框跑偏的问题.
+			if (null != focusView.getParent() && focusView.getParent() instanceof RecyclerView) {
+				final RecyclerView rv = (RecyclerView) focusView.getParent();
+				final int offset = rv.getBaseline();
+				if (offset != -1) {
+					toRect.offset(rv.getLayoutManager().canScrollHorizontally() ? -offset : 0,
+							rv.getLayoutManager().canScrollVertically() ? -offset : 0);
+				}
 			}
 			//
-			int x = toRect.left - fromRect.left - (paddingRect.left);
-			int y = toRect.top - fromRect.top - (paddingRect.top);
+			int x = toRect.left - fromRect.left - ((int)Math.rint(paddingRect.left));
+			int y = toRect.top - fromRect.top - ((int)Math.rint(paddingRect.top));
 			newX = x - Math.abs(focusView.getMeasuredWidth() - newWidth) / 2;
 			newY = y - Math.abs(focusView.getMeasuredHeight() - newHeight) / 2;
 			//
-			newWidth += (paddingRect.right + paddingRect.left);
-			newHeight += (paddingRect.bottom + paddingRect.top);
+			newWidth += ((int)Math.rint(paddingRect.right) + (int)Math.rint(paddingRect.left));
+			newHeight += ((int)Math.rint(paddingRect.bottom) + (int)Math.rint(paddingRect.top));
 		}
 
 		// 取消之前的动画.

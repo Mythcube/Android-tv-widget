@@ -9,8 +9,10 @@ import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.PorterDuff.Mode;
 import android.graphics.PorterDuffXfermode;
+import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.Shader;
+import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
 import android.widget.FrameLayout;
 
@@ -45,19 +47,17 @@ public class ReflectItemView extends FrameLayout {
     private static int sViewIDNum = 0;
     private int viewIDNum = 0;
 
-    public ReflectItemView(Context context, AttributeSet attrs, int defStyle) {
-        super(context, attrs, defStyle);
-        init(context, attrs);
+    public ReflectItemView(Context context) {
+        this(context, null, 0);
     }
 
     public ReflectItemView(Context context, AttributeSet attrs) {
-        super(context, attrs);
-        init(context, attrs);
+        this(context, attrs, 0);
     }
 
-    public ReflectItemView(Context context) {
-        super(context);
-        init(context, null);
+    public ReflectItemView(Context context, AttributeSet attrs, int defStyle) {
+        super(context, attrs, defStyle);
+        init(context, attrs);
     }
 
     private void init(Context context, AttributeSet attrs) {
@@ -146,6 +146,7 @@ public class ReflectItemView extends FrameLayout {
      */
     public void setRefHeight(int height) {
         this.mRefHeight = height;
+        invalidate();
     }
 
     public int getRefHeight() {

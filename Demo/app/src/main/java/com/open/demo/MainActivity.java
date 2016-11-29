@@ -2,7 +2,7 @@ package com.open.demo;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.graphics.Rect;
+import android.graphics.RectF;
 import android.os.Bundle;
 import android.view.MotionEvent;
 import android.view.View;
@@ -15,11 +15,13 @@ import com.open.androidtvwidget.bridge.EffectNoDrawBridge;
 import com.open.androidtvwidget.bridge.OpenEffectBridge;
 import com.open.androidtvwidget.utils.OPENLOG;
 import com.open.androidtvwidget.utils.Utils;
-import com.open.androidtvwidget.view.MainLayout;
+import com.open.androidtvwidget.view.FrameMainLayout;
 import com.open.androidtvwidget.view.MainUpView;
+import com.open.androidtvwidget.view.SmoothHorizontalScrollView;
 
 /**
  * DEMO测试.
+ * xml布局中 clipChildren clipToPadding 不要忘记了，不然移动的边框无法显示出来的. (强烈注意)
  */
 public class MainActivity extends Activity implements OnClickListener {
 
@@ -36,6 +38,8 @@ public class MainActivity extends Activity implements OnClickListener {
         // WindowManager.LayoutParams.FLAG_FULLSCREEN);
         // this.requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.test_main);
+        SmoothHorizontalScrollView hscroll_view = (SmoothHorizontalScrollView) findViewById(R.id.hscroll_view);
+        hscroll_view.setFadingEdge((int)getDimension(R.dimen.w_100)); // 滚动窗口也需要适配.
         //
         test_top_iv = findViewById(R.id.test_top_iv);
         /* MainUpView 设置. */
@@ -61,7 +65,7 @@ public class MainActivity extends Activity implements OnClickListener {
         // mainUpView1.setDrawShadowPadding(0); // 阴影图片设置距离.
         // mOpenEffectBridge.setTranDurAnimTime(500); // 动画时间.
 
-        MainLayout main_lay11 = (MainLayout) findViewById(R.id.main_lay);
+        FrameMainLayout main_lay11 = (FrameMainLayout) findViewById(R.id.main_lay);
         main_lay11.getViewTreeObserver().addOnGlobalFocusChangeListener(new OnGlobalFocusChangeListener() {
             @Override
             public void onGlobalFocusChanged(final View oldFocus, final View newFocus) {
@@ -120,10 +124,10 @@ public class MainActivity extends Activity implements OnClickListener {
     public void testTopDemo(View newView, float scale) {
         // 测试第一个小人放大的效果.
         if (newView.getId() == R.id.gridview_lay) { // 小人在外面的测试.
-            Rect rect = new Rect(getDimension(R.dimen.px7), -getDimension(R.dimen.px42), getDimension(R.dimen.px7),
-                    getDimension(R.dimen.px7));
-            mOpenEffectBridge.setDrawUpRectPadding(rect); // 设置移动边框间距，不要被挡住了。
-            mOpenEffectBridge.setDrawShadowRectPadding(rect); // 设置阴影边框间距，不要被挡住了。
+            RectF rectf = new RectF(getDimension(R.dimen.w_7), -getDimension(R.dimen.h_63), getDimension(R.dimen.w_7),
+                    getDimension(R.dimen.h_30));
+            mOpenEffectBridge.setDrawUpRectPadding(rectf); // 设置移动边框间距，不要被挡住了。
+            mOpenEffectBridge.setDrawShadowRectPadding(rectf); // 设置阴影边框间距，不要被挡住了。
             mOpenEffectBridge.setDrawUpRectEnabled(false); // 让移动边框绘制在小人的下面.
             test_top_iv.animate().scaleX(scale).scaleY(scale).setDuration(100).start(); // 让小人超出控件.
         } else { // 其它的还原.
@@ -134,8 +138,8 @@ public class MainActivity extends Activity implements OnClickListener {
         }
     }
 
-    public int getDimension(int id) {
-        return (int) getResources().getDimension(id);
+    public float getDimension(int id) {
+        return getResources().getDimension(id);
     }
 
     @Override
@@ -179,11 +183,15 @@ public class MainActivity extends Activity implements OnClickListener {
     }
 
     private void switchNoDrawBridgeVersion() {
+        float density = getResources().getDisplayMetrics().density;
+        RectF rectf = new RectF(getDimension(R.dimen.w_10) * density, getDimension(R.dimen.h_10) * density,
+                getDimension(R.dimen.w_9) * density, getDimension(R.dimen.h_9) * density);
         EffectNoDrawBridge effectNoDrawBridge = new EffectNoDrawBridge();
         effectNoDrawBridge.setTranDurAnimTime(200);
+//        effectNoDrawBridge.setDrawUpRectPadding(rectf);
         mainUpView1.setEffectBridge(effectNoDrawBridge); // 4.3以下版本边框移动.
         mainUpView1.setUpRectResource(R.drawable.white_light_10); // 设置移动边框的图片.
-        mainUpView1.setDrawUpRectPadding(new Rect(25, 25, 23, 23)); // 边框图片设置间距.
+        mainUpView1.setDrawUpRectPadding(rectf); // 边框图片设置间距.
     }
 
 }

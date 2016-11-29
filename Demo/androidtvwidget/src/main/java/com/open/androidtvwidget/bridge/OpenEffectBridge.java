@@ -23,7 +23,7 @@ import android.view.animation.DecelerateInterpolator;
  */
 public class OpenEffectBridge extends BaseEffectBridgeWrapper {
 
-	private static final int DEFAULT_TRAN_DUR_ANIM = 300;
+	public static final int DEFAULT_TRAN_DUR_ANIM = 300;
 	private int mTranDurAnimTime = DEFAULT_TRAN_DUR_ANIM;
 	private AnimatorSet mCurrentAnimatorSet;
 	private boolean isInDraw = false;
@@ -69,7 +69,11 @@ public class OpenEffectBridge extends BaseEffectBridgeWrapper {
 	public void setAnimEnabled(boolean animEnabled) {
 		this.mAnimEnabled = animEnabled;
 	}
-	
+
+	public void clearAnimator() {
+		mCurrentAnimatorSet.end();
+	}
+
 	public boolean isAnimEnabled() {
 		return this.mAnimEnabled;
 	}
@@ -139,12 +143,12 @@ public class OpenEffectBridge extends BaseEffectBridgeWrapper {
 		int oldWidth = 0;
 		int oldHeight = 0;
 		
-		int newX = 0;
-		int newY = 0;
+		float newX = 0;
+		float newY = 0;
 		
 		if (focusView != null) {
-			newWidth = (int) (focusView.getMeasuredWidth() * scaleX);
-			newHeight = (int) (focusView.getMeasuredHeight() * scaleY);
+			newWidth = (int) (Math.rint(focusView.getMeasuredWidth() * scaleX));
+			newHeight = (int) (Math.rint(focusView.getMeasuredHeight() * scaleY));
 			oldWidth = moveView.getMeasuredWidth();
 			oldHeight = moveView.getMeasuredHeight();
 			Rect fromRect = findLocationWithView(moveView); // 获取moveView在屏幕上的位置.

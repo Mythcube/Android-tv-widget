@@ -29,7 +29,6 @@
        <activity android:name="com.open.demo.DemoMenuActivity"/>
        <activity android:name="com.open.demo.DemoRecyclerviewActivity"/>
 
-
     </application>
 
 </manifest>
